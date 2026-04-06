@@ -1,0 +1,23 @@
+{
+  "reddit": {
+    "total_posts": 3353,
+    "subreddits": 9,
+    "date_range": "2023-01-02 to 2026-04-04",
+    "total_upvotes": 2262902,
+    "avg_upvotes": 674.9,
+    "median_upvotes": 232.0,
+    "total_comments": 370251,
+    "top_content_type": "news",
+    "highest_engagement_type": "meme",
+    "top_feature": "Claude Code"
+  },
+  "youtube": {
+    "total_videos": 993,
+    "unique_channels": 582,
+    "date_range": "2023-01-30 to 2026-04-02",
+    "total_views": 272381984,
+    "avg_views": 274302.1,
+    "top_channel": "Prompt Guard",
+    "top_content_type": "tutorial"
+  }
+}
