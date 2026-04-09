@@ -1,7 +1,6 @@
 # Viral Growth Machine (VGM) — v2
 
-**Originally built for HackNU 2026 | Growth Engineering Track**
-**Extended for Zimran Business Cup 2026 | EdTech Market Validation**
+**Build for Zimran Business Cup 2026 | EdTech Market Validation**
 
 VGM is a topic-agnostic market intelligence engine. Point it at any niche, and it scrapes public discourse from Reddit and YouTube, enriches the data through a 4-step AI pipeline, and generates data-backed insights about market demand, pain points, and product opportunities.
 
@@ -120,23 +119,6 @@ Posts mentioning Common App, private consultants, and other tools skew negative 
 
 ---
 
-## Original v1 findings (Claude AI growth analysis)
-
-The original HackNU project analyzed 4,346 data points (3,353 Reddit posts + 993 YouTube videos) about Claude AI and found 8 growth patterns:
-
-1. **Pentagon > product launches** — 246K upvotes, 0.23 keyword correlation. Values stance drove more downloads than any feature release.
-2. **Reactive beats educational 2.7x** — reactive content (1,681 avg engagement) vs educational (612).
-3. **r/technology delivers 3.9x more than r/ClaudeAI** — viral growth happens outside the home community.
-4. **3 YouTube creators match Anthropic's entire channel** — Fireship + CarterPCs + AI Code Arena = 34M views.
-5. **Complaints outperform praise** — negative content (1,462 avg) beats positive (1,342).
-6. **Comments predict virality, formatting doesn't** — 0.67 correlation for comments vs ~0 for title caps.
-7. **Sunday morning is the sweet spot** — 80% higher engagement than Thursday.
-8. **Viral posts flip audience** — daily community = developers, viral moments = general public.
-
-Full v1 analysis: [docs/playbook_analysis.md](docs/playbook_analysis.md)
-
----
-
 ## Project structure
 
 ```
@@ -179,10 +161,7 @@ VGM/
 │           ├── anomaly_detector.py    # 5 z-score signal detectors
 │           └── alerter.py             # Console + Slack delivery
 │
-└── docs/
-    ├── playbook_analysis.md           # v1: 8 findings with data
-    ├── part3_build_the_machine.md     # v1: architecture, costs, alerts
-    └── counter_playbook_final.md      # v1: 6 growth strategies
+
 ```
 
 ---
