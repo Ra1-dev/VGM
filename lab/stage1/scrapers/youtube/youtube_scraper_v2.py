@@ -19,104 +19,39 @@ STAGE1_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 OUTPUT_DIR = os.path.join(STAGE1_DIR, "output", "raw", "youtube")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# === 60+ SEARCH QUERIES — organized by category ===
-SEARCH_QUERIES = [
-    # --- Core product ---
-    "Claude AI",
-    "Claude 3",
-    "Claude 3.5",
-    "Claude 4",
-    "Claude 3 Opus",
-    "Claude 3.5 Sonnet",
-    "Claude 3.7 Sonnet",
-    "Claude Sonnet",
-    "Claude Opus",
-    "Claude Haiku",
-    "Claude Pro subscription",
 
-    # --- Features ---
-    "Claude Artifacts",
-    "Claude Projects feature",
-    "Claude computer use demo",
-    "Claude Code CLI",
-    "Claude MCP protocol",
-    "Claude API tutorial",
-    "Claude system prompt tips",
-    "Claude extended thinking",
-    "Claude Max plan",
+def load_config():
+    config_path = os.path.join(os.path.dirname(__file__), "../../../topic_config.json")
+    with open(config_path, encoding="utf-8") as f:
+        return json.load(f)
 
-    # --- Comparisons ---
-    "Claude vs ChatGPT",
-    "Claude vs GPT-4",
-    "Claude vs GPT-4o",
-    "Claude vs Gemini",
-    "Claude vs DeepSeek",
-    "Claude vs Copilot",
-    "Claude vs Llama",
-    "Claude vs Grok",
-    "ChatGPT vs Claude 2024",
-    "ChatGPT vs Claude 2025",
-    "best AI model 2024",
-    "best AI model 2025",
-    "best AI chatbot comparison",
-    "best AI for coding 2024",
-    "best AI for coding 2025",
-    "best AI for writing",
 
-    # --- Brand / Company ---
-    "Anthropic",
-    "Anthropic Claude",
-    "Anthropic AI",
-    "Dario Amodei",
-    "Dario Amodei interview",
-    "Anthropic safety AI",
-    "Anthropic funding",
-    "Anthropic valuation",
+config = load_config()
+SEARCH_QUERIES = config["youtube"]["search_queries"]
+MAX_RESULTS_PER_QUERY = config["youtube"].get("max_results_per_query", 10)
+MAX_ITEMS = config["youtube"].get("max_results_per_query", 33) * len(SEARCH_QUERIES)
 
-    # --- Use cases ---
-    "Claude AI coding",
-    "Claude AI writing",
-    "Claude for developers",
-    "Claude AI workflow",
-    "Claude AI productivity",
-    "Claude for business",
-    "Claude AI data analysis",
-    "using Claude for work",
-    "Claude AI automation",
-
-    # --- Reviews / Opinions ---
-    "Claude review",
-    "Claude AI review 2024",
-    "Claude AI review 2025",
-    "is Claude worth it",
-    "Claude Pro worth it",
-    "why I switched to Claude",
-    "Claude honest review",
-
-    # --- Tutorials ---
-    "Claude AI tutorial",
-    "Claude AI beginner guide",
-    "Claude AI tips and tricks",
-    "how to use Claude AI",
-    "Claude prompt engineering",
-]
-
-MAX_RESULTS_PER_QUERY = 50
-
-# Words that signal NOT Claude AI
 EXCLUDE_KEYWORDS = [
-    "van damme", "jean-claude", "jean claude", "kickboxer", "bloodsport",
-    "claude ams", "programming guru",
-    "debussy", "monet", "claude rains", "claude kelly",
-    "claude giroux",
-    "claude the cat",
-    "speed", "asmr",  # spam channels
+    "van damme", "jean-claude", "jean claude", "kickboxer",
+    "debussy", "monet", "claude rains", "claude giroux",
+    "gaming", "minecraft", "fortnite", "music video",
+    "handwriting", "shorts", "roommate", "make friends",
+    "namma", "apna", "omr sheet", "answer sheet", "exam tips",
+    "high school is famous", "trauma wins", "quizard", "gaokao", "tamil nadu", 
+    "engineering colleges", "namma",
+    "apna college", "india", "chinese students", "jee", "neet",
+    "uk university", "canadian university"
 ]
 
 REQUIRE_ANY = [
-    "claude", "anthropic", "sonnet", "opus", "haiku",
-    "artifacts", "ai model", "ai chatbot", "chatbot",
-    "dario", "amodei", "llm",
+    "college", "university", "admissions", "application",
+    "essay", "common app", "sat", "act", "gpa",
+    "ivy league", "harvard", "stanford", "mit", "yale",
+    "extracurricular", "scholarship", "financial aid",
+    "high school", "counselor", "internship", "volunteer",
+    "collegevine", "naviance", "roadmap", "acceptance",
+    "rejected", "waitlist", "defer", "early decision",
+    "apply", "resume", "recommendation letter"
 ]
 
 
@@ -309,7 +244,8 @@ def main():
     parser.add_argument(
         "--max-items",
         type=int,
-        required=True,
+        required=False,
+	default=MAX_ITEMS,
         help="Maximum number of unique relevant videos to collect before stopping.",
     )
     args = parser.parse_args()

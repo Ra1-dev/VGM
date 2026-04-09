@@ -28,6 +28,19 @@ import requests
 import pandas as pd
 from dotenv import load_dotenv
 
+def load_config():
+    config_path = os.path.join(os.path.dirname(__file__), "../../topic_config.json")
+    with open(config_path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+config = load_config()
+llm_config = config["llm_classification"]
+CONTENT_CATEGORIES = llm_config["content_categories"]
+GROWTH_TYPES = llm_config["growth_types"]
+AUDIENCES = llm_config["audiences"]
+CUSTOM_CONTEXT = llm_config["custom_prompt_context"]
+
 # Path resolution relative to stage1/processing directory
 STAGE1_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 IN_DIR = os.path.join(STAGE1_DIR, "output", "step3_nlp")
@@ -53,20 +66,13 @@ BATCH_SIZE = 20  # Balanced for 8B-14B models on consumer hardware
 
 # ── Classification schema ───────────────────────────────────────────────────
 # Defines the exact categorical values required for downstream stage2 charts.
-CLASSIFICATION_SCHEMA = """
+CLASSIFICATION_SCHEMA = f"""
+{CUSTOM_CONTEXT}
+
 Classify each social media post into these categories:
 
 1. content_category (pick ONE):
-   - discussion     : General conversation
-   - comparison     : Claude vs competitors (ChatGPT, etc.)
-   - tutorial       : How-to, tips
-   - showcase       : Projects built with Claude
-   - complaint      : Bugs, frustrations
-   - praise         : Success stories
-   - news           : Announcements
-   - question       : Help requests
-   - meme           : Humor
-   - feature_request: Desired new features
+   {", ".join(CONTENT_CATEGORIES)}
 
 2. sentiment (pick ONE):
    - positive, negative, neutral, mixed
@@ -75,13 +81,13 @@ Classify each social media post into these categories:
    - high (breakthrough), medium, low
 
 4. growth_type (pick ONE):
-   - organic (enthusiasm), reactive (to events), competitive (switching), educational
+   {", ".join(GROWTH_TYPES)}
 
 5. target_audience (pick ONE):
-   - developers, general, enterprise, researchers, creators
+   {", ".join(AUDIENCES)}
 """
 
-SYSTEM_PROMPT = f"""You are a growth analyst specializing in AI market trends.
+SYSTEM_PROMPT = f"""You are a growth analyst specializing in market trends.
 Classification Goal: {CLASSIFICATION_SCHEMA}
 Constraint: Return ONLY a valid raw JSON array of objects.
 """

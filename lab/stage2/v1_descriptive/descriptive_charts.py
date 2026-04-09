@@ -60,7 +60,7 @@ LAUNCHES = [
 
 def get_llm_category_col(df):
     """Resolve standardized LLM category column with lightweight fallback."""
-    for col in ["ai_llm_content_category", "content_category"]:
+    for col in ["ai_llm_content_category", "ai_llm_content_category"]:
         if df is not None and col in df.columns:
             return col
     return None
@@ -168,14 +168,14 @@ def chart_3_feature_heatmap(reddit_df):
     fig, axes = plt.subplots(1, 2, figsize=(14, 6))
     fig.suptitle("Claude feature analysis — what are people talking about?", fontsize=16, color=ACCENT, fontweight='bold')
 
-    feat_counts = reddit_df['features_mentioned'].value_counts()
+    feat_counts = reddit_df['ai_llm_content_category'].value_counts()
     bars1 = axes[0].barh(feat_counts.index, feat_counts.values, color=ACCENT, alpha=0.7)
     axes[0].set_title("Mention volume", fontsize=12)
     for bar, val in zip(bars1, feat_counts.values):
         axes[0].text(val + 0.5, bar.get_y() + bar.get_height()/2, str(val),
                      va='center', fontsize=9, color='white')
 
-    feat_eng = reddit_df.groupby('features_mentioned')['upvotes'].mean().sort_values(ascending=True)
+    feat_eng = reddit_df.groupby('ai_llm_content_category')['upvotes'].mean().sort_values(ascending=True)
     colors = [ACCENT3 if v == feat_eng.max() else '#00D4FF' for v in feat_eng.values]
     bars2 = axes[1].barh(feat_eng.index, feat_eng.values, color=colors, alpha=0.7)
     axes[1].set_title("Avg upvotes when mentioned", fontsize=12)
@@ -385,7 +385,7 @@ def generate_summary_stats(reddit_df, youtube_df):
             "total_comments": int(reddit_df['comments'].sum()),
             "top_content_type": top_type,
             "highest_engagement_type": high_eng_type,
-            "top_feature": reddit_df['features_mentioned'].value_counts().index[0],
+            "top_feature": reddit_df['ai_llm_content_category'].value_counts().index[0] if len(reddit_df['ai_llm_content_category'].value_counts()) > 0 else "N/A",
         }
 
     if youtube_df is not None and len(youtube_df) > 0:

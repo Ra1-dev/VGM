@@ -1,23 +1,23 @@
 {
   "reddit": {
-    "total_posts": 3353,
-    "subreddits": 9,
-    "date_range": "2023-01-02 to 2026-04-04",
-    "total_upvotes": 2262902,
-    "avg_upvotes": 674.9,
-    "median_upvotes": 232.0,
-    "total_comments": 370251,
-    "top_content_type": "news",
-    "highest_engagement_type": "meme",
-    "top_feature": "Claude Code"
+    "total_posts": 382,
+    "subreddits": 1,
+    "date_range": "2023-01-10 to 2026-04-08",
+    "total_upvotes": 238908,
+    "avg_upvotes": 625.4,
+    "median_upvotes": 419.5,
+    "total_comments": 28615,
+    "top_content_type": "frustration_anxiety",
+    "highest_engagement_type": "profile_review_request",
+    "top_feature": "frustration_anxiety"
   },
   "youtube": {
-    "total_videos": 993,
-    "unique_channels": 582,
-    "date_range": "2023-01-30 to 2026-04-02",
-    "total_views": 272381984,
-    "avg_views": 274302.1,
-    "top_channel": "Prompt Guard",
-    "top_content_type": "tutorial"
+    "total_videos": 250,
+    "unique_channels": 151,
+    "date_range": "2023-02-01 to 2026-04-01",
+    "total_views": 277790343,
+    "avg_views": 1111161.4,
+    "top_channel": "Gohar Khan",
+    "top_content_type": "beginner_question"
   }
 }

@@ -12,6 +12,7 @@ NLP Techniques:
 - Competitor detection: Case-insensitive mention mapping (e.g., 'gpt' → 'GPT-4')
 """
 import os
+import json
 import pandas as pd
 import numpy as np
 
@@ -20,6 +21,16 @@ import nltk
 nltk.download("vader_lexicon", quiet=True)
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from sklearn.feature_extraction.text import TfidfVectorizer
+
+def load_config():
+    config_path = os.path.join(os.path.dirname(__file__), "../../topic_config.json")
+    with open(config_path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+config = load_config()
+COMPETITOR_KEYWORDS = config["nlp"]["competitors"]
+INTEREST_KEYWORDS = config["nlp"].get("keywords_of_interest", [])
 
 # Resolve paths relative to the lab/stage1 directory
 STAGE1_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -118,12 +129,7 @@ def detect_competitors(df, text_col="title_clean"):
     - Maps diverse nicknames/slang to standardized names (e.g. 'gpt-4o' → 'GPT-4o').
     - Sets a categorical flag 'mentions_competitor' for competitive analysis.
     """
-    competitors = {
-        "chatgpt": "ChatGPT", "gpt-4": "GPT-4", "gpt4": "GPT-4", "gpt-4o": "GPT-4o",
-        "openai": "OpenAI", "gemini": "Gemini", "bard": "Bard",
-        "copilot": "Copilot", "deepseek": "DeepSeek", "llama": "Llama",
-        "mistral": "Mistral", "grok": "Grok", "perplexity": "Perplexity",
-    }
+    competitors = {kw.lower(): kw for kw in COMPETITOR_KEYWORDS}
     features = {
         "artifacts": "Artifacts", "sonnet": "Sonnet", "opus": "Opus",
         "haiku": "Haiku", "claude code": "Claude Code", "mcp": "MCP",
@@ -141,10 +147,15 @@ def detect_competitors(df, text_col="title_clean"):
         found = [name for kw, name in features.items() if kw in t]
         return "|".join(found) if found else ""
 
+    def find_pain_points(text):
+        t = str(text).lower()
+        return any(kw.lower() in t for kw in INTEREST_KEYWORDS)
+
     # Generate detection columns
     df["competitors_mentioned"] = df[text_col].apply(find_mentions)
     df["features_mentioned"] = df[text_col].apply(find_features)
     df["mentions_competitor"] = df["competitors_mentioned"].str.len() > 0
+    df["mentions_pain_point"] = df[text_col].apply(find_pain_points)
 
     return df
 

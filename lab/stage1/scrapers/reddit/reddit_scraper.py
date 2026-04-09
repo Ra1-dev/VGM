@@ -18,10 +18,19 @@ STAGE1_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 OUTPUT_DIR = os.path.join(STAGE1_DIR, "output", "raw", "reddit")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# === SUBREDDITS TO SCRAPE ===
-SUBREDDITS_DIRECT = ["ClaudeAI"]
-SUBREDDITS_SEARCH = ["ChatGPT", "artificial", "LocalLLaMA", "singularity", "technology",
-                      "MachineLearning", "ArtificialIntelligence", "OpenAI", "Bard"]
+
+def load_config():
+    config_path = os.path.join(os.path.dirname(__file__), "../../../topic_config.json")
+    with open(config_path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+config = load_config()
+SUBREDDITS = config["reddit"]["subreddits"]
+SUBREDDITS_DIRECT = SUBREDDITS[:1]
+SUBREDDITS_SEARCH = SUBREDDITS[1:]
+SEARCH_QUERIES = config["reddit"]["search_queries"]
+MAX_ITEMS = config["reddit"].get("max_items", 500)
 
 def fetch_reddit_json(url, params=None, max_retries=3):
     for attempt in range(max_retries):
@@ -241,8 +250,8 @@ def main():
     parser.add_argument(
         "--max-items",
         type=int,
-        required=True,
-        help="Maximum number of unique posts to collect before stopping.",
+        default=MAX_ITEMS,
+        help=f"Maximum number of unique posts to collect before stopping. (default: {MAX_ITEMS} from config)",
     )
     args = parser.parse_args()
     if args.max_items <= 0:
@@ -279,89 +288,32 @@ def main():
     # ========================================
     # PHASE 1: r/ClaudeAI — deep coverage
     # ========================================
-    print("\n=== PHASE 1: r/ClaudeAI deep scrape ===")
-
-    for sort, tf, label in [
-        ("top", "all", "claudeai_top_all"),
-        ("top", "year", "claudeai_top_year"),
-        ("top", "month", "claudeai_top_month"),
-        ("hot", None, "claudeai_hot"),
-        ("new", None, "claudeai_new"),
-    ]:
-        print(f"\n  r/ClaudeAI/{sort} (t={tf})")
-        posts = scrape_subreddit_top("ClaudeAI", sort, tf)
-        n = add_posts(posts, label)
-        print(f"    {n} new (total: {len(all_posts)})")
-        if limit_reached:
-            break
-
-    if limit_reached:
-        print("\nCollection limit reached; skipping remaining phases.")
-
-    # Also search for specific high-value terms in ClaudeAI
-    if not limit_reached:
-        for query in ["artifacts", "sonnet", "opus", "computer use", "claude code", "MCP",
-                       "haiku", "API", "pro plan", "system prompt", "context window",
-                       "extended thinking", "claude max", "projects"]:
-            print(f"\n  r/ClaudeAI search: '{query}'")
-            posts = search_subreddit("ClaudeAI", query, "top", "all")
-            n = add_posts(posts, f"claudeai_search_{query}")
+    print("\n=== PHASE 1: Broad multi-subreddit scrape ===")
+    for sub in SUBREDDITS:
+        for sort, tf in [("top", "all"), ("top", "year"), ("hot", None)]:
+            print(f"\n  r/{sub}/{sort} (t={tf})")
+            posts = scrape_subreddit_top(sub, sort, tf)
+            n = add_posts(posts, f"{sub.lower()}_{sort}_{tf}")
             print(f"    {n} new (total: {len(all_posts)})")
             if limit_reached:
                 break
+        if limit_reached:
+            break
 
     # ========================================
     # PHASE 2: Cross-community perception
     # ========================================
     if not limit_reached:
-        print("\n=== PHASE 2: Cross-community scrape ===")
-
-        for sub in SUBREDDITS_SEARCH:
-            for tf in ["all", "year"]:
-                print(f"\n  r/{sub} search 'Claude' (t={tf})")
-                posts = search_subreddit(sub, "Claude", "top", tf)
-                n = add_posts(posts, f"{sub.lower()}_claude_{tf}")
+        print("\n=== PHASE 2: Search queries ===")
+        for sub in SUBREDDITS:
+            for query in SEARCH_QUERIES[:5]:
+                print(f"\n  r/{sub} search '{query}'")
+                posts = search_subreddit(sub, query, "top", "all")
+                n = add_posts(posts, f"{sub.lower()}_{query[:10]}")
                 print(f"    {n} new (total: {len(all_posts)})")
                 if limit_reached:
                     break
-
             if limit_reached:
-                break
-
-            # Also search for Anthropic
-            print(f"\n  r/{sub} search 'Anthropic' (t=all)")
-            posts = search_subreddit(sub, "Anthropic", "top", "all")
-            n = add_posts(posts, f"{sub.lower()}_anthropic")
-            print(f"    {n} new (total: {len(all_posts)})")
-            if limit_reached:
-                break
-
-    # ========================================
-    # PHASE 3: r/ClaudeAI sorted by NEW for timeline coverage
-    # ========================================
-    if not limit_reached:
-        print("\n=== PHASE 3: Recent posts for timeline density ===")
-
-    # Get newest posts with pagination for better time coverage
-    if not limit_reached:
-        url = "https://www.reddit.com/r/ClaudeAI/new.json"
-        after_token = None
-        for page in range(8):  # 8 pages x 100 = 800 recent posts
-            params = {"limit": 100}
-            if after_token:
-                params["after"] = after_token
-            print(f"\n  r/ClaudeAI/new page {page+1}")
-            data = fetch_reddit_json(url, params)
-            if not data or "data" not in data:
-                break
-            children = data["data"].get("children", [])
-            if not children:
-                break
-            posts = [extract_post(c["data"], "ClaudeAI") for c in children]
-            n = add_posts(posts, f"claudeai_new_page{page+1}")
-            print(f"    {n} new (total: {len(all_posts)})")
-            after_token = data["data"].get("after")
-            if not after_token or limit_reached:
                 break
 
     # ========================================
@@ -392,7 +344,8 @@ def main():
 
     # Stats
     from collections import Counter
-    # Classification stats (disabled — moved to analysis pipeline)
+    # Classification stats (disabled — moved to analysis
+    # pipeline)
     # print(f"\nContent types:")
     # for t, c in Counter(p["content_type"] for p in all_posts).most_common():
     #     print(f"  {t:20s} {c:4d}")

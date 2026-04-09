@@ -68,7 +68,7 @@ LAUNCHES = [
 
 def get_llm_category_col(df):
     """Resolve standardized LLM category column with lightweight fallback."""
-    for col in ["ai_llm_content_category", "content_category"]:
+    for col in ["ai_llm_content_category", "ai_llm_content_category"]:
         if df is not None and col in df.columns:
             return col
     return None
