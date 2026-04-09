@@ -35,23 +35,39 @@ EXCLUDE_KEYWORDS = [
     "van damme", "jean-claude", "jean claude", "kickboxer",
     "debussy", "monet", "claude rains", "claude giroux",
     "gaming", "minecraft", "fortnite", "music video",
-    "handwriting", "shorts", "roommate", "make friends",
+    "handwriting", "roommate", "make friends",
     "namma", "apna", "omr sheet", "answer sheet", "exam tips",
-    "high school is famous", "trauma wins", "quizard", "gaokao", "tamil nadu", 
-    "engineering colleges", "namma",
-    "apna college", "india", "chinese students", "jee", "neet",
-    "uk university", "canadian university"
+    "high school is famous", "trauma wins", "quizard",
+    "gaokao", "tamil nadu", "engineering colleges",
+    "india", "chinese students", "jee", "neet",
+    "snuck into", "tattoos", "balloon", "dance floor",
+    "rich kids", "ambanis", "graduation prank",
+    "college fest", "dance", "vlog", "spend", "nyc",
+    "hired by elon", "no college degree", "finals week",
+    "dating", "love", "relationship", "pop the balloon",
+    "grooming", "fashion tips", "sports commitment",
+    "shorts comedy", "trauma dumping", "gone wrong shorts",
+    "never went to harvard", "lawyers", "football",
+    "commitment football", "sports commitment", "CBS sports",
+    "valorant", "gaming", "sheldon", "big bang",
+    "delete your fear", "58 sec", "dan martell",
+    "motivational", "fear of rejection", "entrepreneur",
+    "cbs sports", "tricked mom", "his commitment"
 ]
 
 REQUIRE_ANY = [
-    "college", "university", "admissions", "application",
-    "essay", "common app", "sat", "act", "gpa",
+    "admissions", "application", "apply", "applicant",
+    "common app", "commonapp", "sat", "act score",
     "ivy league", "harvard", "stanford", "mit", "yale",
-    "extracurricular", "scholarship", "financial aid",
-    "high school", "counselor", "internship", "volunteer",
-    "collegevine", "naviance", "roadmap", "acceptance",
-    "rejected", "waitlist", "defer", "early decision",
-    "apply", "resume", "recommendation letter"
+    "princeton", "columbia", "cornell", "dartmouth",
+    "college essay", "personal statement",
+    "extracurricular", "counselor", "consultant",
+    "acceptance", "rejection", "waitlist", "defer",
+    "financial aid", "scholarship", "fafsa",
+    "collegevine", "naviance", "chanceme",
+    "early decision", "early action", "regular decision",
+    "recommendation letter", "college list", "college prep",
+    "high school senior", "junior year", "college bound"
 ]
 
 

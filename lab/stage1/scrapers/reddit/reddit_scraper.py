@@ -290,7 +290,7 @@ def main():
     # ========================================
     print("\n=== PHASE 1: Broad multi-subreddit scrape ===")
     for sub in SUBREDDITS:
-        for sort, tf in [("top", "all"), ("top", "year"), ("hot", None)]:
+        for sort, tf in [("top", "all"), ("top", "year"), ("top", "month"), ("hot", None)]:
             print(f"\n  r/{sub}/{sort} (t={tf})")
             posts = scrape_subreddit_top(sub, sort, tf)
             n = add_posts(posts, f"{sub.lower()}_{sort}_{tf}")
