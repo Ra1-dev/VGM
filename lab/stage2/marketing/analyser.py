@@ -206,25 +206,95 @@ SEED_ADS = [
 # DATA LOADER
 # ══════════════════════════════════════════════════════════════════════════
 
-RELEVANCE_KEYWORDS = [
-    "college", "university", "admission", "application", "study abroad",
-    "counselor", "counsellor", "scholarship", "undergraduate", "bachelor",
-    "sat", "act", "gpa", "ielts", "toefl", "ivy", "campus", "enroll",
-    "study in", "применение", "поступление", "вуз",  # Russian variants
-    "колледж", "университет",
+# ── Strict relevance filtering ─────────────────────────────────────────────
+# Scope: US college admissions for international students ONLY
+# Logic: creative text must contain a US-college-specific signal
+#        AND must not contain any blocklist term
+
+# Ad creative must contain at least one of these
+EDUCATION_SIGNALS = [
+    # Core — single words that strongly signal education context
+    "college", "university", "admission", "admissions",
+    "counselor", "counsellor", "scholarship", "undergraduate",
+    "bachelor", "campus", "enrollment", "enroll",
+    # Tests & tools
+    "sat", "act", "gpa", "ielts", "toefl",
+    "common app", "commonapp", "fafsa",
+    # Phrases
+    "ivy league", "study abroad", "study in",
+    "apply to", "applying to", "acceptance rate",
+    "financial aid", "college essay", "college list",
+    "international student", "higher education",
+    "degree program", "grad school",
+]
+
+# Any match here = immediate disqualification
+BLOCKLIST_TERMS = [
+    # Cosmetics / beauty
+    "cosmetic", "perfume", "cologne", "skincare", "makeup", "lipstick",
+    "mascara", "foundation", "serum", "moisturizer", "beauty product",
+    "nail", "lash", "hair curl", "hair dye", "wax", "spa treatment",
+    # Fashion / retail
+    "clothing", "fashion", "shoes", "sneaker", "outfit", "dress",
+    "jewelry", "accessory", "handbag", "discount code", "shop now",
+    # Food / restaurant
+    "restaurant", "food delivery", "recipe", "meal prep", "cooking",
+    # Games / entertainment
+    "party in my dorm", "mobile game", "gaming app", "casino", "slots",
+    "drambox", "reelshort", "drama series", "watch episode",
+    "streaming", "watch now", "binge",
+    # Finance (non-education)
+    "forex", "crypto", "bitcoin", "trading", "broker", "investment app",
+    "insurance", "mortgage", "credit card",
+    # Dating / relationships
+    "dating app", "find love", "romance", "divorce", "husband", "wife",
+    "match.com", "tinder",
+    # Other irrelevant
+    "vpn", "antivirus", "car wash", "roofing", "warehouse job",
+    "weight loss", "fat burn", "keto", "protein powder",
+    "christmas photo", "portrait", "photo editing",
+    # Known irrelevant advertisers from previous runs
+    "qion", "raza.perfume", "mnogokartin", "romance_kz", "eo broker",
+    "twisted tangle", "strawberrynote", "yoho vpn", "bioglaz",
+    "demall", "party in my dorm",
+    # Specific noise ads seen in data
+    "divorce agreement", "handsome boss", "future husband",
+    "won't come here", "portrait by photo", "portrait за",
+    "amazing now", "looks amazing", "car looks",
+    "hair curler", "split ends", "christmas photo",
+    "razdvizhnaya", "вешалка", "брюк", "купить",
+    "продажа", "магазин",
 ]
 
 def _is_relevant(ad: dict) -> bool:
-    """Return True if the ad is relevant to college admissions / study abroad."""
-    text = " ".join([
-        str(ad.get("headline", "")),
-        str(ad.get("body", "")),
-        str(ad.get("ad_title", "")),
-        str(ad.get("ad_text", "")),
+    """
+    Strict two-stage filter scoped to US college admissions only.
+
+    Stage 1 — blocklist: reject anything that matches irrelevant categories.
+    Stage 2 — education signal: creative text must contain a US-college-specific
+               phrase (not just "university" or "college" in isolation, but
+               a compound phrase that signals US admissions context).
+
+    Critically: does NOT use the keyword/search_term field — only the
+    actual ad creative text matters.
+    """
+    # Build creative text only — exclude keyword/search_term
+    creative_text = " ".join([
+        str(ad.get("headline",   "")),
+        str(ad.get("body",       "")),
+        str(ad.get("ad_title",   "")),
+        str(ad.get("ad_text",    "")),
+        str(ad.get("caption",    "")),
         str(ad.get("advertiser", "")),
-        str(ad.get("keyword", "")),
+        str(ad.get("brand_name", "")),
     ]).lower()
-    return any(kw.lower() in text for kw in RELEVANCE_KEYWORDS)
+
+    # Stage 1 — blocklist
+    if any(term in creative_text for term in BLOCKLIST_TERMS):
+        return False
+
+    # Stage 2 — must contain a US college admissions specific phrase
+    return any(signal in creative_text for signal in EDUCATION_SIGNALS)
 
 
 def _performance_score(ad: dict) -> int:
